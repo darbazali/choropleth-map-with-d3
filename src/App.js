@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { feature } from "topojson";
+import { scaleLinear } from "d3";
 
 const container = d3.select("#container");
 
@@ -88,3 +89,48 @@ d3.json(US_COUNTY_DATA).then((data, error) => {
     });
   }
 });
+
+
+
+const legendWidth = 400, legendHeight = 40, l_margin = 40;
+const lWidth = legendWidth / legendData.length;
+const legend = container
+  .append('svg')
+  .attr('id', 'legend')
+  .attr('width', legendWidth + l_margin)
+  .attr('height', legendHeight + l_margin);
+
+
+const l_group = legend
+  .append('g')
+  .attr('transform', `translate(${l_margin / 2}, ${l_margin / 2})`)
+
+
+l_group.selectAll('rect')
+  .data(legendData)
+  .enter()
+  .append('rect')
+
+  .attr('x', (d, i) => i * lWidth)
+  .attr('y', 0)
+
+  .attr('height', legendHeight)
+  .attr('width', lWidth)
+
+  .attr('fill', d => colorScale(d))
+
+
+const lScale = d3
+  .scaleLinear()
+  .range([0, legendWidth])
+  .domain(d3.extent(legendData))
+
+const lAxis = d3
+  .axisBottom(lScale)
+  .tickFormat( d => d + "%")
+
+
+l_group
+  .append('g')
+  .attr('transform', `translate(0, ${legendHeight})`)
+  .call(lAxis)
