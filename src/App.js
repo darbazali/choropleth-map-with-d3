@@ -1,11 +1,10 @@
 import * as d3 from "d3";
 import { feature } from "topojson";
-import { scaleLinear } from "d3";
 
 const container = d3.select("#container");
 
 container
-  .append("h2")
+  .append("h1")
   .attr("id", "title")
   .text("United States Educational Attainment");
 
@@ -24,7 +23,7 @@ const US_COUNTY_DATA =
 let educationData;
 let countyData;
 
-const width = 800,
+const width = 1000,
   height = 600;
 
 const canvas = container
@@ -36,47 +35,37 @@ const legendData = [3, 12, 21, 30, 39, 48, 57, 66];
 const colorScale = d3
   .scaleThreshold()
   .domain(legendData)
-  .range(d3.schemeBlues[8])
-
-
+  .range(d3.schemeGreens[8]);
 
 /*============================================== 
   DEFINE TOOLTIP
 ===============================================*/
-const drawTooltip = (d,data, tooltip) => {
-
-    let id = d.id;
-    let county = data.find((item) => {
-      return item.fips === id;
-    });
+const drawTooltip = (d, data, tooltip) => {
+  let id = d.id;
+  let county = data.find((item) => {
+    return item.fips === id;
+  });
 
   tooltip
-      .style('opacity', 0.98)
-      .style('left', `${d3.event.layerX}px`)
-      .style('top', `${d3.event.layerY - 90}px`)
+    .style("opacity", 0.98)
+    .style("left", `${d3.event.layerX}px`)
+    .style("top", `${d3.event.layerY - 40}px`)
 
+    .attr("data-education", county.bachelorsOrHigher)
 
-
-      .attr('data-education', county.bachelorsOrHigher)
-
-      .html( () => {
-          return `
-              ${county.area_name}, <br/>
+    .html(() => {
+      return `
+              ${county.area_name},
               ${county.state} : ${county.bachelorsOrHigher}%
-          `
-      })
-
-}
-
+          `;
+    });
+};
 
 const drawMap = () => {
-
-    /*============================================== 
+  /*============================================== 
       TOOLTIP
     ===============================================*/
-  const tooltip = container
-    .append('div')
-    .attr('id', 'tooltip');
+  const tooltip = container.append("div").attr("id", "tooltip");
 
   canvas
     .selectAll("path")
@@ -92,7 +81,7 @@ const drawMap = () => {
         return item.fips === id;
       });
       let percentage = county.bachelorsOrHigher;
-      return colorScale(percentage)
+      return colorScale(percentage);
     }) // fill
 
     .attr("data-fips", (d) => d.id) // id
@@ -106,12 +95,10 @@ const drawMap = () => {
     }) // data-education
 
     // mouse events
-    .on('mouseenter', d => drawTooltip(d, educationData, tooltip))
-    .on('mouseout', () => {
-      tooltip
-        .style('opacity', 0)
-    })
-
+    .on("mouseenter", (d) => drawTooltip(d, educationData, tooltip))
+    .on("mouseout", () => {
+      tooltip.style("opacity", 0);
+    });
 };
 
 d3.json(US_COUNTY_DATA).then((data, error) => {
@@ -134,47 +121,46 @@ d3.json(US_COUNTY_DATA).then((data, error) => {
   }
 });
 
-
-
-const legendWidth = 400, legendHeight = 40, l_margin = 40;
+const legendWidth = 200,
+  legendHeight = 10,
+  l_margin = 40;
 const lWidth = legendWidth / legendData.length;
 const legend = container
-  .append('svg')
-  .attr('id', 'legend')
-  .attr('width', legendWidth + l_margin)
-  .attr('height', legendHeight + l_margin);
-
+  .append("svg")
+  .attr("id", "legend")
+  .attr("width", legendWidth + l_margin)
+  .attr("height", legendHeight + l_margin);
 
 const l_group = legend
-  .append('g')
-  .attr('transform', `translate(${l_margin / 2}, ${l_margin / 2})`)
+  .append("g")
+  .attr("transform", `translate(${l_margin / 2}, ${l_margin / 2})`);
 
-
-l_group.selectAll('rect')
+l_group
+  .selectAll("rect")
   .data(legendData)
   .enter()
-  .append('rect')
+  .append("rect")
 
-  .attr('x', (d, i) => i * lWidth)
-  .attr('y', 0)
+  .attr("x", (d, i) => i * lWidth)
+  .attr("y", 0)
 
-  .attr('height', legendHeight)
-  .attr('width', lWidth)
+  .attr("height", legendHeight)
+  .attr("width", lWidth)
 
-  .attr('fill', d => colorScale(d))
-
+  .attr("fill", (d) => colorScale(d));
 
 const lScale = d3
   .scaleLinear()
   .range([0, legendWidth])
-  .domain(d3.extent(legendData))
+  .domain(d3.extent(legendData));
 
 const lAxis = d3
   .axisBottom(lScale)
-  .tickFormat( d => d + "%")
-
+  .ticks([8])
+  .tickValues(legendData)
+  .tickSize(14);
 
 l_group
-  .append('g')
-  .attr('transform', `translate(0, ${legendHeight})`)
-  .call(lAxis)
+  .append("g")
+  // .attr('transform', `translate(0, ${legendHeight})`)
+  .call(lAxis);
