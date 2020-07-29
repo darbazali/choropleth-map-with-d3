@@ -40,8 +40,44 @@ const colorScale = d3
 
 
 
+/*============================================== 
+  DEFINE TOOLTIP
+===============================================*/
+const drawTooltip = (d,data, tooltip) => {
+
+    let id = d.id;
+    let county = data.find((item) => {
+      return item.fips === id;
+    });
+
+  tooltip
+      .style('opacity', 0.98)
+      .style('left', `${d3.event.layerX}px`)
+      .style('top', `${d3.event.layerY - 90}px`)
+
+
+
+      .attr('data-education', county.bachelorsOrHigher)
+
+      .html( () => {
+          return `
+              ${county.area_name}, <br/>
+              ${county.state} : ${county.bachelorsOrHigher}%
+          `
+      })
+
+}
+
 
 const drawMap = () => {
+
+    /*============================================== 
+      TOOLTIP
+    ===============================================*/
+  const tooltip = container
+    .append('div')
+    .attr('id', 'tooltip');
+
   canvas
     .selectAll("path")
     .data(countyData)
@@ -67,7 +103,15 @@ const drawMap = () => {
       });
       let percentage = county.bachelorsOrHigher;
       return percentage;
-    });
+    }) // data-education
+
+    // mouse events
+    .on('mouseenter', d => drawTooltip(d, educationData, tooltip))
+    .on('mouseout', () => {
+      tooltip
+        .style('opacity', 0)
+    })
+
 };
 
 d3.json(US_COUNTY_DATA).then((data, error) => {

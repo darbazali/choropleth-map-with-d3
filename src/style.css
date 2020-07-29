@@ -5,3 +5,27 @@ body {
     margin: 0;
 }
 
+body {
+    color: hsl(0, 0%, 21%);
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+
+#container {
+    width: 85vw;
+    margin: 1.5rem auto;
+    text-align: center;
+    position: relative;
+}
+
+#container div#tooltip {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.808);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+}
