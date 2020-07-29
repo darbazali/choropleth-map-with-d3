@@ -45,3 +45,10 @@ h1 {
     top: 8rem;
     left: 60%;
 }
+
+
+@media ( max-width: 1400px) {
+    h1 {
+        font-size: 2rem;
+    }
+}
